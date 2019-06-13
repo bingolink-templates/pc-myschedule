@@ -27,7 +27,7 @@
       </div>  
       <div class="error-info" v-if="errMsg">
         <img src="static/styleImages/tea.svg" />
-        <span @click="loadTask()">{{errMsg}}</span>
+        <span @click="getWholeData()">{{errMsg}}</span>
       </div>          
     </div>
   </div>
@@ -55,20 +55,20 @@ export default {
   components: {
   },
   created(){
-    this.getWholeData(() => {
-      util.each(this.DateTimes , (dt) => {
-        if(dt.isActive){
-          this.selectDay(dt);
-        }
-      });
-    });
+    this.getWholeData();
   },
   mounted(){
   },
   methods: {
     getWholeData(callback){
       this.DateTimes = dateUtil.getCurrentWeek();
-      this.getWeekItems(callback);
+      this.getWeekItems(() => {
+        util.each(this.DateTimes , (dt) => {
+          if(dt.isActive){
+            this.selectDay(dt);
+          }
+        });
+      });
     },
     selectDay(weekDay){
       var res = this.weekItems[weekDay.dateStr] || [];
