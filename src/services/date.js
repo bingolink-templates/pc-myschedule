@@ -42,6 +42,7 @@ module.exports = {
                 date: _date,
                 dateStr: this.format(_date, 'yyyy-MM-dd'),
                 isActive: i == dayOf,
+                isHover: false,
                 hasSchedule: false
             })
         }

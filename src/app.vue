@@ -11,14 +11,17 @@
         </div>
         <div class="num">
           <span v-for="dt in DateTimes" v-bind:class="{hasData: dt.hasSchedule}">
-            <i v-bind:class="{active: dt.isActive}" 
+            <i v-bind:style="{'background-color':(dt.isActive||dt.isHover)?themeColor:'',
+              'color':(dt.isActive||dt.isHover)?'#FFFFFF':''}" 
+              @mouseover="dt.isHover=true"
+              @mouseout="dt.isHover=false"
               @click="selectDay(dt)">{{dt.day}}</i>
           </span>
         </div>
       </div>
       <div class="new-item" v-for="(item, $index) in items" :key="item">
         <div class="text-type">
-          <i class="item-dot"></i>
+          <i class="item-dot" v-bind:style="{'background-color': themeColor}"></i>
           <p class="item-title" @click="openUrl(item)">【{{item.period}}】{{item.title}}</p>
         </div>
       </div>  
@@ -39,6 +42,7 @@ export default {
   data () {
     return {
       i18n: window.i18n,
+      themeColor: window.env.themeColor,
       DateTexts: [window.i18n.Sun, window.i18n.Mon,
                   window.i18n.Tue, window.i18n.Wed,
                   window.i18n.Thu, window.i18n.Fri, window.i18n.Sat],
