@@ -1,35 +1,56 @@
 module.exports = {
     "zh_cn": {
-        "MyTask": "我的任务",
+        "MySchedule": "我的日程",
         "Date_ALLDay":"全天",
         "Date_Begin":"开始于",
  	    "Date_End":"结束于",
         "More": "更多",
-        "App_Worktask":"任务",
+        "App_Schedule":"日程",
         "ErrorData": "数据异常，点击重新加载",
         "ErrorLoadData": "数据加载异常，点击重新加载",
-        "NoOngoingTasks": "暂无进行中的任务，点击重新加载"
+        "NoOngoingSchedules": "暂无进行中的日程",
+        "Mon":"一",
+        "Tue":"二",
+        "Wed":"三",
+        "Thu":"四",
+        "Fri":"五",
+        "Sat":"六",
+        "Sun":"日"
     },
     "zh_hk": {
-        "MyTask": "我的任務",
+        "MySchedule": "我的日程",
         "Date_ALLDay":"全天",
         "Date_Begin":"開始于",
  	    "Date_End":"結束于",
         "More": "更多",
-        "App_Worktask":"任務",
+        "App_Schedule":"日程",
         "ErrorData": "數據異常，點擊重新加載",
         "ErrorLoadData": "數據加載異常，點擊重新加載",
-        "NoOngoingTasks": "暫無進行中的任務，點擊重新加載"
+        "NoOngoingSchedules": "暫無進行中的日程",
+        "Mon":"一",
+        "Tue":"二",
+        "Wed":"三",
+        "Thu":"四",
+        "Fri":"五",
+        "Sat":"六",
+        "Sun":"日"
     },
     "en": {
-        "MyTask": "My Task",
+        "MySchedule": "My Schedule",
         "More": "More",
         "Date_ALLDay":"All day",
         "Date_Begin":"start with",
         "Date_End":"end with",
-        "App_Worktask":"Task",
+        "App_Schedule":"Schedule",
         "ErrorData": "Data is abnormal, click to reload",
         "ErrorLoadData": "Data loading failed, click to reload",
-        "NoOngoingTasks": "No ongoing tasks, click to reload"
+        "NoOngoingSchedules": "No ongoing schedules",
+        "Mon":"Mon",
+        "Tue":"Tue",
+        "Wed":"Wed",
+        "Thu":"Thu",
+        "Fri":"Fri",
+        "Sat":"Sat",
+        "Sun":"Sun"
     }
 }

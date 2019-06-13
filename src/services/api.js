@@ -16,71 +16,85 @@ function requestCommonList(options, success , error){
     }) 
 }
 
-function formatStartEndTime(datas){
-    var tYear = new Date().getFullYear();
-    util.each(datas || [], function(data){
-        var sDate,
-            eDate,
-            sf,
-            ef;
-        if(data.startTime){
-            sDate = new Date(data.startTime);
-            sf = data.isAllDay ? (sDate.getFullYear() == tYear ? 'MM-dd' : 'yyyy-MM-dd') : (sDate.getFullYear() == tYear ? 'MM-dd hh:mm' : 'yyyy-MM-dd hh:mm');
-            sDate = dateUtil.format(sDate, sf);
+function formatCalendarDate(time){
+    return new Date(dateUtil.format(new Date(time), 'yyyy-MM-dd') + ' 00:00:00').getTime();
+}
+
+//将时间段切成天
+function cutPeriodToDay(startTime, endTime, isAllDay){
+    if(startTime > endTime) return {};
+    var days = {};
+    var startDay = formatCalendarDate(startTime);
+    for(; startDay <= endTime; startDay += dateUtil.DATE_TIME){
+        var dayStr = dateUtil.format(new Date(startDay), 'yyyy-MM-dd'),
+            dS = new Date(dayStr + ' 00:00:00').getTime(),
+            dE = new Date(dayStr + ' 23:59:59').getTime();
+        if(startTime <= dS && dE <= endTime || isAllDay){ //全天
+            days[dayStr] = i18n.Date_ALLDay;
+        } else if(startTime > dS && dE > endTime){ //某天内
+            days[dayStr] = dateUtil.format(new Date(startTime), 'hh:mm') + '-'
+                + dateUtil.format(new Date(endTime), 'hh:mm');
+        } else if(startTime > dS && dE <= endTime){ //开始于
+            days[dayStr] = dateUtil.format(new Date(startTime), 'hh:mm');
+        } else if(startTime <= dS && dE > endTime){ //结束于
+            days[dayStr] = i18n.Date_End + dateUtil.format(new Date(endTime), 'hh:mm');
         }
-        if(data.endTime){
-            eDate = new Date(data.endTime);
-            ef = data.isAllDay ? (eDate.getFullYear() == tYear ? 'MM-dd' : 'yyyy-MM-dd') : (eDate.getFullYear() == tYear ? 'MM-dd hh:mm' : 'yyyy-MM-dd hh:mm');
-            eDate = dateUtil.format(eDate, ef);
+    }
+    return days;
+}
+
+//将日程切割到每一天
+function splitScheduleToDay(datas){
+    var sheduleDays = {};
+    util.each(datas, function(d){
+        var ds = cutPeriodToDay(d.startTime, d.endTime, d.isAllDay);
+        for(var dStr in ds){
+            if(!sheduleDays[dStr]) sheduleDays[dStr] = [];
+            sheduleDays[dStr].push({
+                id: d.id,
+                period: ds[dStr],
+                title: d.name,
+                marked: d.marked
+            });
         }
-        if(sDate && eDate){
-            data.showTime = sDate + '~' + eDate;
-        } else if(sDate && !eDate){
-            data.showTime = i18n.Date_Begin + sDate;
-        } else if(!sDate && eDate){
-            data.showTime = i18n.Date_End + eDate;
-        } else {
-            data.showTime = '';
-        }
-        if(data.isAllDay) data.showTime += ' ' + i18n.Date_ALLDay;
     });
-    return datas;
+    return sheduleDays;
 }
 
 module.exports = {
-    getTasks(startTime, endTime, success, error){
-        startTime /= 1000;
-        endTime /= 1000;
-        var obj = {
-            entityName: 'ExtendWorktask',
+    getSchedules(start, end, success, error){
+        var sqls = [];
+        if(end) sqls.push('UNIX_TIMESTAMP(startTime) <= ' + end / 1000);
+        if(start) sqls.push('UNIX_TIMESTAMP(endTime) >= ' + start / 1000);
+
+        var reqObj = {
+            entityName: 'ExtendSchedule',
             searchType: 0,
+            pageSize: '',
+            page: '',
             keyWord: '',
-            currentStatus: 0,
-            orderBy: 'IF(ISNULL(IFNULL(startTime,endTime)),1,0),IF(ISNULL(startTime),endTime,startTime),IF(ISNULL(endTime),1,0),endTime',
-            marked: false,
+            orderBy: 'startTime asc',
             parentId: '',
+            scope: 'all',
+            whereFilter: sqls.join(' and '),
             endTime: '',
             startTime: ''
         }
-        //进行中
-        var progressObj = util.extend({}, obj, {
-            marked: '',
-            whereFilter: '(UNIX_TIMESTAMP(startTime) <= ' + endTime + ' OR startTime IS NULL) AND (UNIX_TIMESTAMP(endTime) >= ' + startTime + ' OR endTime IS NULL)'
-        });
-        var progressObjExt = util.extend({}, progressObj, {
+
+        var reqObjExt = util.extend({}, reqObj, {
             searchType: 4 //; 外部数据
         });
 
         var counter = 2,
             datas = [];
-        requestCommonList(progressObj, sucCallback, errCallback)
-        requestCommonList(progressObjExt, sucCallback, errCallback)
+        requestCommonList(reqObj, sucCallback, errCallback)
+        requestCommonList(reqObjExt, sucCallback, errCallback)
 
         function sucCallback(res){
             datas = datas.concat(res);
             counter--;
             if(counter == 0){
-                success(formatStartEndTime(datas));
+                success(splitScheduleToDay(datas));
             }
         }
 
@@ -93,9 +107,9 @@ module.exports = {
     },
     getOpenUrl(item){
         var params = {
-            name: encodeURIComponent(i18n.App_Worktask),
-            sourceType: 40,
-            E: 'ExtendWorktask',
+            name: encodeURIComponent(i18n.App_Schedule),
+            sourceType: 26,
+            E: 'ExtendSchedule',
             sourceId: item.id
         }
         var url = '{web}/home.html?';
@@ -106,11 +120,11 @@ module.exports = {
     },
     getMoreUrl(){
         var params = {
-            name: encodeURIComponent(i18n.App_Worktask),
-            sourceType: 40,
-            E: 'ExtendWorktask'
+            name: encodeURIComponent(i18n.App_Schedule),
+            sourceType: 26,
+            E: 'ExtendSchedule'
         }
-        var url = '{web}/taskList.html?';
+        var url = '{web}/scheduleList.html?';
         for(var key in params){
             url += key + '=' + params[key] + '&';
         }

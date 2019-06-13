@@ -2,6 +2,7 @@
  * 时间相关的处理
  */
 module.exports = {
+    DATE_TIME: 1000 * 60 * 60 * 24,
     /**
      * ts 时间
      * fmt 格式化
@@ -27,5 +28,23 @@ module.exports = {
             }
         }
         return fmt
+    },
+    getCurrentWeek(){
+        var DATE_TIME = this.DATE_TIME;
+        var today = new Date(),
+            todayTime = today.getTime(),
+            dayOf = today.getDay(),
+            weeks = [];
+        for(var i = 0; i < 7; i++){
+            var _date = new Date(todayTime + (i - dayOf) * DATE_TIME);
+            weeks.push({
+                day: _date.getUTCDate(),
+                date: _date,
+                dateStr: this.format(_date, 'yyyy-MM-dd'),
+                isActive: i == dayOf,
+                hasSchedule: false
+            })
+        }
+        return weeks;
     }
 }
