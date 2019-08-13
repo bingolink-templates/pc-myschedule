@@ -56,6 +56,9 @@ export default {
   },
   created(){
     this.getWholeData();
+    app.linkplugin.listenRefreshWidgetData(() => {
+      this.getWholeData();
+    });
   },
   mounted(){
   },
