@@ -1,6 +1,5 @@
 import Vue from 'vue'
 window.app = window.parent.app;
-
 import lang from 'ser/lang'
 import App from './app.vue'
 //组件按需加载
